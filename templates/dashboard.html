@@ -7,75 +7,42 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Ptačí Dashboard</h1>
-    <div class="filter-group">
-      <span class="filter-group-label">Status ohrožení</span>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="7" value="Málo dotčený"/> Málo dotčený</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="7" value="Téměř ohrožený"/> Téměř ohrožený</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="7" value="Zranitelný"/> Zranitelný</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="7" value="Ohrožený"/> Ohrožený</label>
+    
+   <section class="filters">
+    <select><option>Řád</option></select>
+    <select><option>Typ potravy</option></select>
+    <select><option>Kontinent</option></select>
+    <select><option>Migrace</option></select>
+    <select><option>Status ohrožení</option></select>
+    <input type="number" placeholder="Hmotnost od">
+    <input type="number" placeholder="Hmotnost do">
+
+    <button>Filtrovat</button>
+    <button>Resetovat</button>
+</section>
+
+
+
+<section class="charts">
+    <div class="chart-box">
+        <canvas id="chart1"></canvas>
     </div>
- 
-    <div class="filter-group">
-      <span class="filter-group-label">Typ potravy</span>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="masožravec"/> masožravec</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="všežravec"/> všežravec</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="hmyzožravec"/> hmyzožravec</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="býložravec"/> býložravec</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="mrchožrout"/> mrchožrout</label>
+    <div class="chart-box">
+        <canvas id="chart2"></canvas>
     </div>
- 
-    <div class="filter-group">
-      <span class="filter-group-label">Kontinent</span>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Evropa"/> Evropa</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Afrika"/> Afrika</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Asie"/> Asie</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Severní Amerika"/> Severní Amerika</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Jižní Amerika"/> Jižní Amerika</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Austrálie"/> Austrálie</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Antarktida"/> Antarktida</label>
+    <div class="chart-box">
+        <canvas id="chart3"></canvas>
     </div>
- 
-    <div class="filter-group">
-      <span class="filter-group-label">Migrace</span>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="9" value="1"/> ✈️ Migrující</label>
-      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="9" value="0"/> 🏠 Nemigrující</label>
+    <div class="chart-box">
+        <canvas id="chart4"></canvas>
     </div>
- 
-    <button class="btn-reset" onclick="resetFilters()">↺ Zrušit filtry</button>
-  </aside>
- 
-  <!-- MAIN -->
-  <main>
-    <div class="results-bar">
-      <span>Zobrazeno <strong id="shownCount">120</strong> druhů</span>
-    </div>
- 
-    <div class="table-wrap">
-      <table id="birdsTable">
-        <thead>
-          <tr>
-            <th onclick="sortTable(0)">Název</th>
-            <th onclick="sortTable(2)">Řád / Čeleď</th>
-            <th onclick="sortTable(4)">Délka cm</th>
-            <th onclick="sortTable(5)">Rozpětí cm</th>
-            <th onclick="sortTable(6)">Hmot. g</th>
-            <th onclick="sortTable(8)">Potrava</th>
-            <th onclick="sortTable(10)">Kontinent</th>
-            <th>Migrace</th>
-            <th onclick="sortTable(7)">Status</th>
-            <th onclick="sortTable(11)">Snůška</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-      <div class="empty" id="emptyMsg">
-        <div class="empty-icon">🔍</div>
-        Žádní ptáci neodpovídají zvoleným filtrům.
-      </div>
-    </div>
-  </main>
-</div>
+</section>
+
+<section class="table-section">
+    <table>
+        <!-- tvoje data -->
+    </table>
+</section>
     <table border="1">
         <thead>
             <tr>
