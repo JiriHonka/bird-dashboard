@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ptačí Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Ptačí Dashboard</h1>
+    <div class="filter-group">
+      <span class="filter-group-label">Status ohrožení</span>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="7" value="Málo dotčený"/> Málo dotčený</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="7" value="Téměř ohrožený"/> Téměř ohrožený</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="7" value="Zranitelný"/> Zranitelný</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="7" value="Ohrožený"/> Ohrožený</label>
+    </div>
+ 
+    <div class="filter-group">
+      <span class="filter-group-label">Typ potravy</span>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="masožravec"/> masožravec</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="všežravec"/> všežravec</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="hmyzožravec"/> hmyzožravec</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="býložravec"/> býložravec</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="8" value="mrchožrout"/> mrchožrout</label>
+    </div>
+ 
+    <div class="filter-group">
+      <span class="filter-group-label">Kontinent</span>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Evropa"/> Evropa</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Afrika"/> Afrika</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Asie"/> Asie</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Severní Amerika"/> Severní Amerika</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Jižní Amerika"/> Jižní Amerika</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Austrálie"/> Austrálie</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="10" value="Antarktida"/> Antarktida</label>
+    </div>
+ 
+    <div class="filter-group">
+      <span class="filter-group-label">Migrace</span>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="9" value="1"/> ✈️ Migrující</label>
+      <label class="cb-item"><input type="checkbox" class="filter-cb" data-col="9" value="0"/> 🏠 Nemigrující</label>
+    </div>
+ 
+    <button class="btn-reset" onclick="resetFilters()">↺ Zrušit filtry</button>
+  </aside>
+ 
+  <!-- MAIN -->
+  <main>
+    <div class="results-bar">
+      <span>Zobrazeno <strong id="shownCount">120</strong> druhů</span>
+    </div>
+ 
+    <div class="table-wrap">
+      <table id="birdsTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Název</th>
+            <th onclick="sortTable(2)">Řád / Čeleď</th>
+            <th onclick="sortTable(4)">Délka cm</th>
+            <th onclick="sortTable(5)">Rozpětí cm</th>
+            <th onclick="sortTable(6)">Hmot. g</th>
+            <th onclick="sortTable(8)">Potrava</th>
+            <th onclick="sortTable(10)">Kontinent</th>
+            <th>Migrace</th>
+            <th onclick="sortTable(7)">Status</th>
+            <th onclick="sortTable(11)">Snůška</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="emptyMsg">
+        <div class="empty-icon">🔍</div>
+        Žádní ptáci neodpovídají zvoleným filtrům.
+      </div>
+    </div>
+  </main>
+</div>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Název</th>
+                <th>Vědecký název</th>
+                <th>Řád</th>
+                <th>Čeleď</th>
+                <th>Délka</th>
+                <th>Rozpětí</th>
+                <th>Hmotnost</th>
+                <th>Status</th>
+                <th>Potrava</th>
+                <th>Migrace</th>
+                <th>Kontinent</th>
+                <th>Snůška</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in ptaci %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ p['nazev'] }}</td>
+                <td>{{ p['vedecky_nazev'] }}</td>
+                <td>{{ p['rad'] }}</td>
+                <td>{{ p['celed'] }}</td>
+                <td>{{ p['delka_cm'] }} cm</td>
+                <td>{{ p['rozpeti_cm'] }} cm</td>
+                <td>{{ p['hmotnost_g'] }} g</td>
+                <td>{{ p['status_ohrozeni'] }}</td>
+                <td>{{ p['typ_potravy'] }}</td>
+                <td>{{ "Ano" if p['migrace'] else "Ne" }}</td>
+                <td>{{ p['vyskyt_kontinent'] }}</td>
+                <td>{{ p['snuska_ks'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</body>
+</html>

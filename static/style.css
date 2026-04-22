@@ -1,0 +1,119 @@
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Header styles */
+header {
+    background: linear-gradient(to right, #1b4332, #2d6a4f);
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Filters styles */
+.filters {
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+.filters button {
+    background: #2d6a4f;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* Statistic cards */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    text-align: center;
+}
+.stats .card {
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+.stats .card .number {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+/* Graphs */
+.graphs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+.graphs .graph {
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+/* Table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow-x: auto;
+}
+table thead {
+    background: #2d6a4f;
+    color: white;
+}
+table tr:nth-child(even) {
+    background: #f9f9f9;
+}
+table tr:hover {
+    background: #e9e9e9;
+}
+table th, table td {
+    padding: 10px;
+    text-align: left;
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 0.9em;
+}
+.badge.malo-dotceny {
+    background: #2d6a4f;
+}
+.badge.temer-ohrozeny {
+    background: #ffcc00;
+}
+.badge.zranitelny {
+    background: #ff9900;
+}
+.badge.ohrozeny {
+    background: #ff3300;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .graphs {
+        grid-template-columns: 1fr;
+    }
+    .filters {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .filters {
+        grid-template-columns: 1fr;
+    }
+}
