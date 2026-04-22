@@ -7,7 +7,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+<header>
+  <div>
+    <h1> Ptačí dashboard</h1>
+  </div>
+  <p>Interaktivní procházení datasetu 16 druhů ptáků</p>
+</header>
+ 
+<div class="layout">
+ 
+  <div class=container>
     
+  <aside>
+    <h2>Filtry</h2>
+    <form method="get" action="/">
    <section class="filters">
     <select><option>Řád</option></select>
     <select><option>Typ potravy</option></select>
@@ -19,7 +32,8 @@
 
     <button>Filtrovat</button>
     <button>Resetovat</button>
-</section>
+    </section>
+    </div>
 
 
 
