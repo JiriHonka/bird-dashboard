@@ -109,10 +109,25 @@
       <span class="stat-label">Maximální hmotnost</span>
     </div>
   </section>
-
-<section class="table-section">
-    <table>
-    </table>
+<h2></h2>
+<section class="graphs">
+    <div class="graph">
+        <h2>Počet druhů podle řádu</h2>
+        <canvas id="chart-rad"></canvas>
+    </div>
+    <div class="graph">
+        <h2>Tažní vs netažní</h2>
+        <canvas id="chart-migrace"></canvas>
+    </div>
+    <div class="graph">
+        <h2>Průměrná hmotnost podle potravy</h2>
+        <canvas id="chart-weight"></canvas>
+    </div>
+    <div class="graph">
+        <h2>Počet druhů podle kontinentů</h2>
+        <canvas id="chart-continent"></canvas>
+    </div>
+    <h2></h2>
 </section>
     <table border="1">
         <thead>
@@ -133,17 +148,24 @@
             </tr>
         </thead>
         <tbody>
-            {% for p in ptaci %}
+           {% for p in ptaci %}
             <tr>
                 <td>{{ loop.index }}</td>
-                <td>{{ p['nazev'] }}</td>
-                <td>{{ p['vedecky_nazev'] }}</td>
+                <td style="font-weight: bold;">{{ p['nazev'] }}</td>
+                <td><style>.vedecky_nazev { font-style: italic; } </style><span class="vedecky_nazev">{{ p['vedecky_nazev'] }}</span></td>
                 <td>{{ p['rad'] }}</td>
                 <td>{{ p['celed'] }}</td>
                 <td>{{ p['delka_cm'] }} cm</td>
                 <td>{{ p['rozpeti_cm'] }} cm</td>
                 <td>{{ p['hmotnost_g'] }} g</td>
-                <td>{{ p['status_ohrozeni'] }}</td>
+                <td>
+                    {% set status_lower = p['status_ohrozeni']|lower %}
+                    {% if 'zraniteln' in status_lower %}
+                        <span class="badge zranitelny">{{ p['status_ohrozeni'] }}</span>
+                    {% else %}
+                        {{ p['status_ohrozeni'] }}
+                    {% endif %}
+                </td>
                 <td>{{ p['typ_potravy'] }}</td>
                 <td>{{ "Ano" if p['migrace'] else "Ne" }}</td>
                 <td>{{ p['vyskyt_kontinent'] }}</td>
@@ -153,5 +175,157 @@
         </tbody>
     </table>
     
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const radLabels = {{ rad_labels | tojson | safe }};
+  const radCounts = {{ rad_counts | tojson | safe }};
+  const ctx = document.getElementById('chart-rad').getContext('2d');
+  const colors = radCounts.map((_, idx) => {
+    const ratio = radCounts.length > 1 ? idx / (radCounts.length - 1) : 0;
+    const lightness = Math.round(32 + ratio * 18);
+    return `hsl(145, 55%, ${lightness}%)`;
+  });
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: radLabels,
+      datasets: [{
+        label: 'Počet druhů',
+        data: radCounts,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+
+  const migraceData = [{{ netazni_count }}, {{ tazni_count }}];
+  const migraceCtx = document.getElementById('chart-migrace').getContext('2d');
+  new Chart(migraceCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Netažní', 'Tažní'],
+      datasets: [{
+        data: migraceData,
+        backgroundColor: ['#386a4c', '#8fb89d'],
+        borderColor: ['#2f5f44', '#7aa684'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 20
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.parsed || 0;
+              const total = migraceData.reduce((a, b) => a + b, 0);
+              const percent = total ? Math.round((value / total) * 100) : 0;
+              return `${label}: ${value} (${percent}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const weightLabels = {{ weight_labels | tojson | safe }};
+  const weightAvgs = {{ weight_avgs | tojson | safe }};
+  const weightCtx = document.getElementById('chart-weight').getContext('2d');
+  new Chart(weightCtx, {
+    type: 'bar',
+    data: {
+      labels: weightLabels,
+      datasets: [{
+        label: 'Průměrná hmotnost (g)',
+        data: weightAvgs,
+        backgroundColor: '#205336',
+        borderColor: '#183f28',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+
+  const continentLabels = {{ continent_labels | tojson | safe }};
+  const continentCounts = {{ continent_counts | tojson | safe }};
+  const continentCtx = document.getElementById('chart-continent').getContext('2d');
+  const continentColors = continentCounts.map((_, idx) => {
+    const ratio = continentCounts.length > 1 ? idx / (continentCounts.length - 1) : 0;
+    const lightness = Math.round(28 + ratio * 28);
+    return `hsl(145, 62%, ${lightness}%)`;
+  });
+
+  new Chart(continentCtx, {
+    type: 'bar',
+    data: {
+      labels: continentLabels,
+      datasets: [{
+        label: 'Počet druhů',
+        data: continentCounts,
+        backgroundColor: continentColors,
+        borderColor: continentColors,
+        borderWidth: 1,
+        borderRadius: 10,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+</script>
+ 
 </body>
 </html>
