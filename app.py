@@ -38,7 +38,9 @@ def dashboard():
         stats_query += clause
         order_query += clause
         migration_query += clause
-        params.extend(rad_filter)
+        weight_query += clause
+        continent_query += clause
+        params.extend(rad_filter)  # Add rad_filter values to params
  
     if status_filter:
         placeholders = ",".join("?" * len(status_filter))
@@ -137,14 +139,18 @@ def dashboard():
     rad_labels = [row[0] for row in rad_rows]
     rad_counts = [row[1] for row in rad_rows]
  
+    # Execute weight query with its own parameters
     weight_query += " GROUP BY typ_potravy ORDER BY avg_hmotnost DESC"
-    cursor.execute(weight_query, params)
+    weight_params = params.copy()  # Use a separate parameter list for this query
+    cursor.execute(weight_query, weight_params)
     weight_rows = cursor.fetchall()
     weight_labels = [row[0] for row in weight_rows]
     weight_avgs = [round(row[1], 1) for row in weight_rows]
  
+    # Execute continent query with its own parameters
     continent_query += " GROUP BY vyskyt_kontinent ORDER BY cnt DESC"
-    cursor.execute(continent_query, params)
+    continent_params = params.copy()  # Use a separate parameter list for this query
+    cursor.execute(continent_query, continent_params)
     continent_rows = cursor.fetchall()
     continent_labels = [row[0] for row in continent_rows]
     continent_counts = [row[1] for row in continent_rows]
