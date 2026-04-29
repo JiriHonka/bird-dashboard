@@ -1,9 +1,9 @@
-Plán implementace správy ptačího datasetu
+#Plán implementace správy ptačího datasetu
 Přehled
 
 Cílem je vytvořit webovou aplikaci, která umožní přihlášeným uživatelům spravovat záznamy o ptácích (CRUD operace – Create, Read, Update, Delete). Nepřihlášení uživatelé nebudou mít přístup ke správě databáze.
 
-Fáze 1: Autentizace uživatele (Login systém)
+#Fáze 1: Autentizace uživatele (Login systém)
 Funkcionalita
 Přihlášení uživatele
 Ochrana rout (přístup pouze pro přihlášené)
@@ -23,7 +23,7 @@ Chybová zpráva pod formulářem
 Technické poznámky
 Použití session nebo JWT tokenů
 Middleware pro ochranu rout
-Fáze 2: Zobrazení seznamu ptáků (Read)
+#Fáze 2: Zobrazení seznamu ptáků (Read)
 Funkcionalita
 Výpis všech záznamů v databázi
 Workflow
@@ -38,7 +38,7 @@ Latinský název
 Popis
 Akce (Upravit, Smazat)
 Tlačítko: „Přidat nového ptáka“
-Fáze 3: Přidání nového záznamu (Create)
+#Fáze 3: Přidání nového záznamu (Create)
 Funkcionalita
 Vytvoření nového záznamu o ptákovi
 Workflow
@@ -57,7 +57,7 @@ Popis
 Tlačítka:
 „Uložit“
 „Zrušit“
-Fáze 4: Úprava záznamu (Update)
+#Fáze 4: Úprava záznamu (Update)
 Funkcionalita
 Editace existujícího záznamu
 Workflow
@@ -70,7 +70,7 @@ Uživatelské rozhraní
 Stránka: /birds/:id/edit
 Formulář stejný jako při vytváření
 Předvyplněná data
-Fáze 5: Smazání záznamu (Delete)
+#Fáze 5: Smazání záznamu (Delete)
 Funkcionalita
 Odstranění záznamu z databáze
 Workflow
@@ -83,7 +83,7 @@ Tlačítko „Smazat“ v tabulce
 Modal/dialog s potvrzením:
 „Opravdu chcete smazat tento záznam?“
 Tlačítka: „Ano“ / „Ne“
-Fáze 6: Ochrana aplikace (Authorization)
+#Fáze 6: Ochrana aplikace (Authorization)
 Funkcionalita
 Zajištění, že CRUD operace jsou dostupné pouze přihlášeným
 Workflow
@@ -93,7 +93,7 @@ Přihlášený uživatel má plný přístup.
 Technické řešení
 Middleware kontrolující autentizaci
 Token uložený v cookies/localStorage
-Fáze 7: Struktura databáze
+#Fáze 7: Struktura databáze
 Tabulka: birds
 id (PK)
 name (string)
@@ -102,14 +102,14 @@ description (text)
 image_url (string, volitelné)
 created_at
 updated_at
-Fáze 8: API návrh
+#Fáze 8: API návrh
 Endpointy
 POST /api/login
 GET /api/birds
 POST /api/birds
 PUT /api/birds/:id
 DELETE /api/birds/:id
-Fáze 9: Verzování a commit
+#Fáze 9: Verzování a commit
 Postup
 Vytvořit soubor: PLAN.md
 Vložit tento plán
