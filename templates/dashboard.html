@@ -22,18 +22,72 @@
     <h2>Filtry</h2>
     <form method="get" action="/">
    <section class="filters">
-    <select><option>Řád</option></select>
-    <select><option>Typ potravy</option></select>
-    <select><option>Kontinent</option></select>
-    <select><option>Migrace</option></select>
-    <select><option>Status ohrožení</option></select>
-    <input type="number" placeholder="Hmotnost od">
-    <input type="number" placeholder="Hmotnost do">
+    <label>
+          ŘÁD
+          <select name="rad">
+            <option value="">--Všechny--</option>
+            {% for rad in rady %}
+              <option value="{{ rad }}" {% if rad in selected_rad %}selected{% endif %}>{{ rad }}</option>
+            {% endfor %}
+          </select>
+        </label>
 
-    <button>Filtrovat</button>
-    <button>Resetovat</button>
-    </section>
-    </div>
+        <label>
+          TYP POTRAVY
+          <select name="typ_potravy">
+            <option value="">--Všechny--</option>
+            {% for typ in typy_potravy %}
+              <option value="{{ typ }}" {% if typ in selected_typ %}selected{% endif %}>{{ typ }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>
+          KONTINENT
+          <select name="vyskyt_kontinent">
+            <option value="">--Všechny--</option>
+            {% for kontinent in kontinenty %}
+              <option value="{{ kontinent }}" {% if kontinent in selected_kontinent %}selected{% endif %}>{{ kontinent }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>
+          MIGRACE
+          <select name="migrace">
+            <option value="">--Všichni--</option>
+            <option value="1" {% if '1' in selected_migrace %}selected{% endif %}>Ano</option>
+            <option value="0" {% if '0' in selected_migrace %}selected{% endif %}>Ne</option>
+          </select>
+        </label>
+
+        <label>
+          STATUS OHROŽENÍ
+          <select name="status_ohrozeni">
+            <option value="">--Všechny--</option>
+            {% for status in statuses %}
+              <option value="{{ status }}" {% if status in selected_status %}selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>
+          HMOTNOST OD (G)
+          <input type="number" name="hmotnost_od" placeholder="Hmotnost od" value="{{ selected_hmotnost_od or '' }}">
+        </label>
+
+        <label>
+          HMOTNOST DO (G)
+          <input type="number" name="hmotnost_do" placeholder="Hmotnost do" value="{{ selected_hmotnost_do or '' }}">
+        </label>
+
+        <div class="filter-buttons">
+          <button type="submit" id="filter-button">Filtrovat</button>
+          <a id="reset-button" class="button" href="/">Resetovat</a>
+        </div>
+      </section>
+    </form>
+  </aside>
 
 
 
