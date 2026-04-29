@@ -1,4 +1,4 @@
-#Plán implementace správy ptačího datasetu
+#Plán implementace správy ptačího datasetu.
 Přehled
 
 Cílem je vytvořit webovou aplikaci, která umožní přihlášeným uživatelům spravovat záznamy o ptácích (CRUD operace – Create, Read, Update, Delete). Nepřihlášení uživatelé nebudou mít přístup ke správě databáze.
@@ -23,6 +23,7 @@ Chybová zpráva pod formulářem
 Technické poznámky
 Použití session nebo JWT tokenů
 Middleware pro ochranu rout
+
 #Fáze 2: Zobrazení seznamu ptáků (Read)
 Funkcionalita
 Výpis všech záznamů v databázi
@@ -38,6 +39,7 @@ Latinský název
 Popis
 Akce (Upravit, Smazat)
 Tlačítko: „Přidat nového ptáka“
+
 #Fáze 3: Přidání nového záznamu (Create)
 Funkcionalita
 Vytvoření nového záznamu o ptákovi
@@ -57,6 +59,7 @@ Popis
 Tlačítka:
 „Uložit“
 „Zrušit“
+
 #Fáze 4: Úprava záznamu (Update)
 Funkcionalita
 Editace existujícího záznamu
@@ -70,6 +73,7 @@ Uživatelské rozhraní
 Stránka: /birds/:id/edit
 Formulář stejný jako při vytváření
 Předvyplněná data
+
 #Fáze 5: Smazání záznamu (Delete)
 Funkcionalita
 Odstranění záznamu z databáze
@@ -83,6 +87,7 @@ Tlačítko „Smazat“ v tabulce
 Modal/dialog s potvrzením:
 „Opravdu chcete smazat tento záznam?“
 Tlačítka: „Ano“ / „Ne“
+
 #Fáze 6: Ochrana aplikace (Authorization)
 Funkcionalita
 Zajištění, že CRUD operace jsou dostupné pouze přihlášeným
@@ -93,6 +98,7 @@ Přihlášený uživatel má plný přístup.
 Technické řešení
 Middleware kontrolující autentizaci
 Token uložený v cookies/localStorage
+
 #Fáze 7: Struktura databáze
 Tabulka: birds
 id (PK)
@@ -102,6 +108,7 @@ description (text)
 image_url (string, volitelné)
 created_at
 updated_at
+
 #Fáze 8: API návrh
 Endpointy
 POST /api/login
@@ -109,6 +116,7 @@ GET /api/birds
 POST /api/birds
 PUT /api/birds/:id
 DELETE /api/birds/:id
+
 #Fáze 9: Verzování a commit
 Postup
 Vytvořit soubor: PLAN.md
