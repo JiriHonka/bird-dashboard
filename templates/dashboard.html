@@ -91,24 +91,27 @@
 
 
 
-<section class="charts">
-    <div class="chart-box">
-        <canvas id="chart1"></canvas>
+<section class="stats">
+    <div class="stat-card">
+      <span class="stat-number">{{ celkem }}</span>
+      <span class="stat-label">Počet druhů</span>
     </div>
-    <div class="chart-box">
-        <canvas id="chart2"></canvas>
+    <div class="stat-card">
+      <span class="stat-number">{{ prumerna_delka }} cm</span>
+      <span class="stat-label">Průměrná délka</span>
     </div>
-    <div class="chart-box">
-        <canvas id="chart3"></canvas>
+    <div class="stat-card">
+      <span class="stat-number">{{ prumerna_hmotnost }} g</span>
+      <span class="stat-label">Průměrná hmotnost</span>
     </div>
-    <div class="chart-box">
-        <canvas id="chart4"></canvas>
+    <div class="stat-card">
+      <span class="stat-number">{{ max_hmotnost }} g</span>
+      <span class="stat-label">Maximální hmotnost</span>
     </div>
-</section>
+  </section>
 
 <section class="table-section">
     <table>
-        <!-- tvoje data -->
     </table>
 </section>
     <table border="1">
