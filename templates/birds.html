@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Správa ptáků | Ptačí dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <div>
+    <h1>Ptačí dashboard</h1>
+  </div>
+  <p>Správa záznamů o ptácích. Přihlášen jako {{ username }}.</p>
+</header>
+<div class="layout">
+  <div class="bird-actions">
+    <a class="button" href="{{ url_for('create_bird') }}">Přidat nového ptáka</a>
+    <a class="button secondary" href="{{ url_for('logout') }}">Odhlásit se</a>
+    <a class="button secondary" href="{{ url_for('dashboard') }}">Obnovit</a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, msg in messages %}
+    <div class="alert alert-{{ category }}">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Název</th>
+        <th>Vědecký název</th>
+        <th>Řád</th>
+        <th>Čeleď</th>
+        <th>Délka (cm)</th>
+        <th>Rozpětí (cm)</th>
+        <th>Hmotnost (g)</th>
+        <th>Status</th>
+        <th>Potrava</th>
+        <th>Migrace</th>
+        <th>Kontinent</th>
+        <th>Snůška</th>
+        <th>Akce</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if birds %}
+        {% for bird in birds %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ bird['nazev'] }}</td>
+          <td><em>{{ bird['vedecky_nazev'] }}</em></td>
+          <td>{{ bird['rad'] }}</td>
+          <td>{{ bird['celed'] }}</td>
+          <td>{{ bird['delka_cm'] or '' }}</td>
+          <td>{{ bird['rozpeti_cm'] or '' }}</td>
+          <td>{{ bird['hmotnost_g'] or '' }}</td>
+          <td>{{ bird['status_ohrozeni'] or '' }}</td>
+          <td>{{ bird['typ_potravy'] or '' }}</td>
+          <td>{{ 'Ano' if bird['migrace'] else 'Ne' }}</td>
+          <td>{{ bird['vyskyt_kontinent'] or '' }}</td>
+          <td>{{ bird['snuska_ks'] or '' }}</td>
+          <td>
+            <a class="button small" href="{{ url_for('edit_bird', bird_id=bird['id']) }}">Upravit</a>
+            <form action="{{ url_for('delete_bird', bird_id=bird['id']) }}" method="post" class="inline-form" onsubmit="return confirm('Opravdu chcete smazat tento záznam?');">
+              <button type="submit" class="button danger small">Smazat</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="14">Zatím není žádný záznam.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

@@ -1,19 +1,75 @@
-from flask import Flask, render_template, request
+import os
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
- 
+from werkzeug.security import check_password_hash, generate_password_hash
+
 app = Flask(__name__)
- 
+app.secret_key = "opravdu-bezpecny-klic"
+DATABASE = "ptaci.db"
+
 def get_db():
-    conn = sqlite3.connect("ptaci.db")
+    conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
- 
+
+def init_db():
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL
+            )
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ptaci (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nazev TEXT NOT NULL,
+                vedecky_nazev TEXT,
+                rad TEXT,
+                celed TEXT,
+                delka_cm INTEGER,
+                rozpeti_cm INTEGER,
+                hmotnost_g INTEGER,
+                status_ohrozeni TEXT,
+                typ_potravy TEXT,
+                migrace INTEGER,
+                vyskyt_kontinent TEXT,
+                snuska_ks REAL
+            )
+        """)
+        cursor.execute("SELECT COUNT(*) FROM users")
+        if cursor.fetchone()[0] == 0:
+            cursor.execute(
+                "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+                ("admin", generate_password_hash("admin123")),
+            )
+        conn.commit()
+
+def login_required(view):
+    @wraps(view)
+    def wrapped_view(**kwargs):
+        if not session.get("user_id"):
+            return redirect(url_for("login"))
+        return view(**kwargs)
+    return wrapped_view
+
+def parse_int(value, default=None):
+    try: return int(value)
+    except (TypeError, ValueError): return default
+
+def parse_float(value, default=None):
+    try: return float(value)
+    except (TypeError, ValueError): return default
+
 @app.route("/")
+@app.route("/dashboard")
 def dashboard():
     conn = get_db()
     cursor = conn.cursor()
- 
-    # Get filter values from query params
+
     rad_filter = [v for v in request.args.getlist("rad") if v]
     status_filter = [v for v in request.args.getlist("status_ohrozeni") if v]
     typ_potravy_filter = [v for v in request.args.getlist("typ_potravy") if v]
@@ -21,182 +77,146 @@ def dashboard():
     migrace_filter = [v for v in request.args.getlist("migrace") if v]
     hmotnost_od = request.args.get("hmotnost_od")
     hmotnost_do = request.args.get("hmotnost_do")
- 
-    # Build dynamic query and matching summary query
-    query = "SELECT * FROM ptaci WHERE 1=1"
-    stats_query = "SELECT COUNT(*), AVG(delka_cm), AVG(hmotnost_g), MAX(hmotnost_g) FROM ptaci WHERE 1=1"
-    order_query = "SELECT rad, COUNT(*) AS cnt FROM ptaci WHERE 1=1"
-    migration_query = "SELECT SUM(migrace) AS tazni, COUNT(*) - SUM(migrace) AS netazni FROM ptaci WHERE 1=1"
-    weight_query = "SELECT typ_potravy, AVG(hmotnost_g) AS avg_hmotnost FROM ptaci WHERE 1=1"
-    continent_query = "SELECT vyskyt_kontinent, COUNT(*) AS cnt FROM ptaci WHERE 1=1"
+
+    conditions = ["1=1"]
     params = []
- 
+
     if rad_filter:
-        placeholders = ",".join("?" * len(rad_filter))
-        clause = f" AND rad IN ({placeholders})"
-        query += clause
-        stats_query += clause
-        order_query += clause
-        migration_query += clause
-        weight_query += clause
-        continent_query += clause
-        params.extend(rad_filter)  # Add rad_filter values to params
- 
+        conditions.append(f"rad IN ({','.join(['?']*len(rad_filter))})")
+        params.extend(rad_filter)
     if status_filter:
-        placeholders = ",".join("?" * len(status_filter))
-        clause = f" AND status_ohrozeni IN ({placeholders})"
-        query += clause
-        stats_query += clause
-        order_query += clause
-        migration_query += clause
-        weight_query += clause
-        continent_query += clause
+        conditions.append(f"status_ohrozeni IN ({','.join(['?']*len(status_filter))})")
         params.extend(status_filter)
- 
     if typ_potravy_filter:
-        placeholders = ",".join("?" * len(typ_potravy_filter))
-        clause = f" AND typ_potravy IN ({placeholders})"
-        query += clause
-        stats_query += clause
-        order_query += clause
-        migration_query += clause
-        weight_query += clause
-        continent_query += clause
+        conditions.append(f"typ_potravy IN ({','.join(['?']*len(typ_potravy_filter))})")
         params.extend(typ_potravy_filter)
- 
     if kontinent_filter:
-        placeholders = ",".join("?" * len(kontinent_filter))
-        clause = f" AND vyskyt_kontinent IN ({placeholders})"
-        query += clause
-        stats_query += clause
-        order_query += clause
-        migration_query += clause
-        weight_query += clause
-        continent_query += clause
+        conditions.append(f"vyskyt_kontinent IN ({','.join(['?']*len(kontinent_filter))})")
         params.extend(kontinent_filter)
- 
     if migrace_filter:
-        placeholders = ",".join("?" * len(migrace_filter))
-        clause = f" AND migrace IN ({placeholders})"
-        query += clause
-        stats_query += clause
-        order_query += clause
-        migration_query += clause
-        weight_query += clause
-        continent_query += clause
-        valid_migrace = []
-        for m in migrace_filter:
-            try:
-                valid_migrace.append(int(m))
-            except ValueError:
-                continue
-        params.extend(valid_migrace)
- 
+        conditions.append(f"migrace IN ({','.join(['?']*len(migrace_filter))})")
+        params.extend([int(m) for m in migrace_filter])
     if hmotnost_od:
-        try:
-            val = int(hmotnost_od)
-            query += " AND hmotnost_g >= ?"
-            stats_query += " AND hmotnost_g >= ?"
-            order_query += " AND hmotnost_g >= ?"
-            migration_query += " AND hmotnost_g >= ?"
-            weight_query += " AND hmotnost_g >= ?"
-            continent_query += " AND hmotnost_g >= ?"
-            params.append(val)
-        except ValueError:
-            pass
- 
+        conditions.append("hmotnost_g >= ?")
+        params.append(hmotnost_od)
     if hmotnost_do:
-        try:
-            val = int(hmotnost_do)
-            query += " AND hmotnost_g <= ?"
-            stats_query += " AND hmotnost_g <= ?"
-            order_query += " AND hmotnost_g <= ?"
-            migration_query += " AND hmotnost_g <= ?"
-            weight_query += " AND hmotnost_g <= ?"
-            continent_query += " AND hmotnost_g <= ?"
-            params.append(val)
-        except ValueError:
-            pass
- 
-    query += " ORDER BY nazev ASC"
-    cursor.execute(query, params)
+        conditions.append("hmotnost_g <= ?")
+        params.append(hmotnost_do)
+
+    where_clause = " WHERE " + " AND ".join(conditions)
+
+    cursor.execute(f"SELECT * FROM ptaci {where_clause} ORDER BY nazev ASC", params)
     ptaci = cursor.fetchall()
- 
-    cursor.execute(stats_query, params)
+
+    cursor.execute(f"SELECT COUNT(*), AVG(delka_cm), AVG(hmotnost_g), MAX(hmotnost_g) FROM ptaci {where_clause}", params)
     count, avg_delka, avg_hmotnost, max_hmotnost = cursor.fetchone()
-    avg_delka = round(avg_delka, 1) if avg_delka is not None else 0
-    avg_hmotnost = round(avg_hmotnost, 1) if avg_hmotnost is not None else 0
-    max_hmotnost = max_hmotnost if max_hmotnost is not None else 0
- 
-    cursor.execute(migration_query, params)
-    tazni, netazni = cursor.fetchone()
-    tazni = int(tazni or 0)
-    netazni = int(netazni or 0)
- 
-    order_query += " GROUP BY rad ORDER BY cnt DESC, rad ASC LIMIT 5"
-    cursor.execute(order_query, params)
-    rad_rows = cursor.fetchall()
-    rad_labels = [row[0] for row in rad_rows]
-    rad_counts = [row[1] for row in rad_rows]
- 
-    # Execute weight query with its own parameters
-    weight_query += " GROUP BY typ_potravy ORDER BY avg_hmotnost DESC"
-    weight_params = params.copy()  # Use a separate parameter list for this query
-    cursor.execute(weight_query, weight_params)
-    weight_rows = cursor.fetchall()
-    weight_labels = [row[0] for row in weight_rows]
-    weight_avgs = [round(row[1], 1) for row in weight_rows]
- 
-    # Execute continent query with its own parameters
-    continent_query += " GROUP BY vyskyt_kontinent ORDER BY cnt DESC"
-    continent_params = params.copy()  # Use a separate parameter list for this query
-    cursor.execute(continent_query, continent_params)
-    continent_rows = cursor.fetchall()
-    continent_labels = [row[0] for row in continent_rows]
-    continent_counts = [row[1] for row in continent_rows]
- 
-    # Get all unique values for filter dropdowns
-    cursor.execute("SELECT DISTINCT rad FROM ptaci ORDER BY rad")
-    rady = [row[0] for row in cursor.fetchall()]
- 
-    cursor.execute("SELECT DISTINCT status_ohrozeni FROM ptaci ORDER BY status_ohrozeni")
-    statuses = [row[0] for row in cursor.fetchall()]
- 
-    cursor.execute("SELECT DISTINCT typ_potravy FROM ptaci ORDER BY typ_potravy")
-    typy_potravy = [row[0] for row in cursor.fetchall()]
- 
-    cursor.execute("SELECT DISTINCT vyskyt_kontinent FROM ptaci ORDER BY vyskyt_kontinent")
-    kontinenty = [row[0] for row in cursor.fetchall()]
- 
+
+    cursor.execute(f"SELECT rad, COUNT(*) as cnt FROM ptaci {where_clause} GROUP BY rad ORDER BY cnt DESC LIMIT 5", params)
+    rad_data = cursor.fetchall()
+    
+    cursor.execute(f"SELECT SUM(CASE WHEN migrace=1 THEN 1 ELSE 0 END), SUM(CASE WHEN migrace=0 THEN 1 ELSE 0 END) FROM ptaci {where_clause}", params)
+    tazni_netazni = cursor.fetchone()
+
+    cursor.execute(f"SELECT typ_potravy, AVG(hmotnost_g) FROM ptaci {where_clause} GROUP BY typ_potravy", params)
+    weight_data = cursor.fetchall()
+
+    cursor.execute(f"SELECT vyskyt_kontinent, COUNT(*) FROM ptaci {where_clause} GROUP BY vyskyt_kontinent", params)
+    continent_data = cursor.fetchall()
+
+    rady = [r['rad'] for r in conn.execute("SELECT DISTINCT rad FROM ptaci WHERE rad IS NOT NULL").fetchall()]
+    typy = [t['typ_potravy'] for t in conn.execute("SELECT DISTINCT typ_potravy FROM ptaci WHERE typ_potravy IS NOT NULL").fetchall()]
+    kontinenty = [k['vyskyt_kontinent'] for k in conn.execute("SELECT DISTINCT vyskyt_kontinent FROM ptaci WHERE vyskyt_kontinent IS NOT NULL").fetchall()]
+    statuses = [s['status_ohrozeni'] for s in conn.execute("SELECT DISTINCT status_ohrozeni FROM ptaci WHERE status_ohrozeni IS NOT NULL").fetchall()]
+
     conn.close()
- 
+
     return render_template(
         "dashboard.html",
-        ptaci=ptaci,
-        rady=rady,
-        statuses=statuses,
-        typy_potravy=typy_potravy,
-        kontinenty=kontinenty,
-        selected_rad=rad_filter,
-        selected_status=status_filter,
-        selected_typ=typ_potravy_filter,
-        selected_kontinent=kontinent_filter,
-        selected_migrace=migrace_filter,
-        selected_hmotnost_od=hmotnost_od,
-        selected_hmotnost_do=hmotnost_do,
-        celkem=count,
-        prumerna_delka=avg_delka,
-        prumerna_hmotnost=avg_hmotnost,
-        max_hmotnost=max_hmotnost,
-        rad_labels=rad_labels,
-        rad_counts=rad_counts,
-        tazni_count=tazni,
-        netazni_count=netazni,
-        weight_labels=weight_labels,
-        weight_avgs=weight_avgs,
-        continent_labels=continent_labels,
-        continent_counts=continent_counts
+        ptaci=ptaci, rady=rady, typy_potravy=typy, kontinenty=kontinenty, statuses=statuses,
+        selected_rad=rad_filter, selected_typ=typ_potravy_filter, selected_kontinent=kontinent_filter,
+        selected_status=status_filter, selected_migrace=migrace_filter,
+        selected_hmotnost_od=hmotnost_od, selected_hmotnost_do=hmotnost_do,
+        celkem=count, prumerna_delka=round(avg_delka or 0, 1),
+        prumerna_hmotnost=round(avg_hmotnost or 0, 1), max_hmotnost=max_hmotnost or 0,
+        rad_labels=[r[0] for r in rad_data], rad_counts=[r[1] for r in rad_data],
+        tazni_count=tazni_netazni[0] or 0, netazni_count=tazni_netazni[1] or 0,
+        weight_labels=[w[0] for w in weight_data], weight_avgs=[round(w[1] or 0, 1) for w in weight_data],
+        continent_labels=[c[0] for c in continent_data], continent_counts=[c[1] for c in continent_data]
     )
- 
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if session.get("user_id"): return redirect(url_for("bird_list"))
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        with get_db() as conn:
+            user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+            if user and check_password_hash(user["password_hash"], password):
+                session.update({"user_id": user["id"], "username": user["username"]})
+                return redirect(url_for("bird_list"))
+        error = "Nesprávné údaje."
+    return render_template("login.html", error=error)
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+@app.route("/birds")
+@login_required
+def bird_list():
+    with get_db() as conn:
+        birds = conn.execute("SELECT * FROM ptaci ORDER BY nazev ASC").fetchall()
+    return render_template("birds.html", birds=birds, username=session.get("username"))
+
+@app.route("/birds/new", methods=["GET", "POST"])
+@login_required
+def create_bird():
+    if request.method == "POST":
+        form = request.form
+        data = (
+            form.get("nazev", "").strip(),
+            form.get("vedecky_nazev", "").strip(),
+            form.get("rad", "").strip(),
+            form.get("celed", "").strip(),
+            parse_int(form.get("delka_cm")),
+            parse_int(form.get("rozpeti_cm")),
+            parse_int(form.get("hmotnost_g")),
+            form.get("status_ohrozeni", "").strip(),
+            form.get("typ_potravy", "").strip(),
+            1 if form.get("migrace") == "1" else 0,
+            form.get("vyskyt_kontinent", "").strip(),
+            parse_float(form.get("snuska_ks")),
+        )
+        with get_db() as conn:
+            conn.execute("INSERT INTO ptaci (nazev, vedecky_nazev, rad, celed, delka_cm, rozpeti_cm, hmotnost_g, status_ohrozeni, typ_potravy, migrace, vyskyt_kontinent, snuska_ks) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", data)
+        flash("Pták přidán.", "success")
+        return redirect(url_for("bird_list"))
+    return render_template("bird_form.html", bird=None, form_action=url_for("create_bird"), title="Přidat ptáka")
+
+@app.route("/birds/<int:bird_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_bird(bird_id):
+    with get_db() as conn:
+        bird = conn.execute("SELECT * FROM ptaci WHERE id = ?", (bird_id,)).fetchone()
+        if request.method == "POST":
+            form = request.form
+            data = (form.get("nazev", "").strip(), form.get("vedecky_nazev", "").strip(), form.get("rad", "").strip(), form.get("celed", "").strip(), parse_int(form.get("delka_cm")), parse_int(form.get("rozpeti_cm")), parse_int(form.get("hmotnost_g")), form.get("status_ohrozeni", "").strip(), form.get("typ_potravy", "").strip(), 1 if form.get("migrace") == "1" else 0, form.get("vyskyt_kontinent", "").strip(), parse_float(form.get("snuska_ks")), bird_id)
+            conn.execute("UPDATE ptaci SET nazev=?, vedecky_nazev=?, rad=?, celed=?, delka_cm=?, rozpeti_cm=?, hmotnost_g=?, status_ohrozeni=?, typ_potravy=?, migrace=?, vyskyt_kontinent=?, snuska_ks=? WHERE id=?", data)
+            flash("Upraveno.", "success")
+            return redirect(url_for("bird_list"))
+    return render_template("bird_form.html", bird=bird, form_action=url_for("edit_bird", bird_id=bird_id), title="Upravit ptáka")
+
+@app.route("/birds/<int:bird_id>/delete", methods=["POST"])
+@login_required
+def delete_bird(bird_id):
+    with get_db() as conn:
+        conn.execute("DELETE FROM ptaci WHERE id = ?", (bird_id,))
+    flash("Smazáno.", "success")
+    return redirect(url_for("bird_list"))
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    init_db()
+    app.run(debug=True, port=5000)

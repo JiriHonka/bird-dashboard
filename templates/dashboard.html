@@ -12,14 +12,18 @@
     <h1> Ptačí dashboard</h1>
   </div>
   <p>Interaktivní procházení datasetu 16 druhů ptáků</p>
+  <div class="header-actions">
+    <a class="button" href="{% if session.user_id %} {{ url_for('bird_list') }} {% else %} {{ url_for('login') }} {% endif %}">Správa ptáků</a>
+  </div>
 </header>
  
 <div class="layout">
  
   <div class="container">
-<aside>
+    
+  <aside>
     <h2></h2>
-    <form method="get" action="/">
+    <form method="get" action="{{ url_for('dashboard') }}">
       <section class="filters">
         <label>
           ŘÁD
@@ -88,7 +92,7 @@
     </form>
   </aside>
 
-<section class="stats">
+  <section class="stats">
     <div class="stat-card">
       <span class="stat-number">{{ celkem }}</span>
       <span class="stat-label">Počet druhů</span>
@@ -106,7 +110,8 @@
       <span class="stat-label">Maximální hmotnost</span>
     </div>
   </section>
-<h2></h2>
+
+  <h2></h2>
 <section class="graphs">
     <div class="graph">
         <h2>Počet druhů podle řádu</h2>
@@ -134,18 +139,18 @@
                 <th>Vědecký název</th>
                 <th>Řád</th>
                 <th>Čeleď</th>
-                <th>Délka</th>
-                <th>Rozpětí</th>
-                <th>Hmotnost</th>
+                <th>Délka (cm)</th>
+                <th>Rozpětí (cm)</th>
+                <th>Hmotnost (g)</th>
                 <th>Status</th>
                 <th>Potrava</th>
                 <th>Migrace</th>
                 <th>Kontinent</th>
-                <th>Snůška</th>
+                <th>Snůška (ks)</th>
             </tr>
         </thead>
         <tbody>
-           {% for p in ptaci %}
+            {% for p in ptaci %}
             <tr>
                 <td>{{ loop.index }}</td>
                 <td style="font-weight: bold;">{{ p['nazev'] }}</td>
@@ -323,6 +328,5 @@
     }
   });
 </script>
-    
 </body>
 </html>

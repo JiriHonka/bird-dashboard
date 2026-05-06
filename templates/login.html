@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Přihlášení | Ptačí dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <div>
+    <h1>Ptačí dashboard</h1>
+  </div>
+  <p>Pro pokračování se přihlaste.</p>
+</header>
+<div class="layout">
+  <div class="container login-container">
+    <section class="form-card">
+      <h2>Přihlášení</h2>
+      {% if error %}
+      <div class="alert alert-error">{{ error }}</div>
+      {% endif %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+        <div class="alert alert-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <form method="post" action="{{ url_for('login') }}">
+        <label>Uživatelské jméno
+          <input type="text" name="username" required>
+        </label>
+        <label>Heslo
+          <input type="password" name="password" required>
+        </label>
+        <button type="submit">Přihlásit se</button>
+      </form>
+      <p class="hint">Uživatel: <strong>admin</strong>, heslo: <strong>admin123</strong></p>
+    </section>
+  </div>
+</div>
+</body>
+</html>

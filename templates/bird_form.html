@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Ptačí dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <div>
+    <h1>Ptačí dashboard</h1>
+  </div>
+  <p>{{ title }}</p>
+</header>
+<div class="layout">
+  <div class="container form-page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+      <div class="alert alert-{{ category }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <form action="{{ form_action }}" method="post">
+      <label>Název
+        <input type="text" name="nazev" value="{{ bird['nazev'] if bird else '' }}" required>
+      </label>
+      <label>Vědecký název
+        <input type="text" name="vedecky_nazev" value="{{ bird['vedecky_nazev'] if bird else '' }}">
+      </label>
+      <label>Řád
+        <input type="text" name="rad" value="{{ bird['rad'] if bird else '' }}">
+      </label>
+      <label>Čeleď
+        <input type="text" name="celed" value="{{ bird['celed'] if bird else '' }}">
+      </label>
+      <label>Délka (cm)
+        <input type="number" name="delka_cm" value="{{ bird['delka_cm'] if bird else '' }}" min="0">
+      </label>
+      <label>Rozpětí (cm)
+        <input type="number" name="rozpeti_cm" value="{{ bird['rozpeti_cm'] if bird else '' }}" min="0">
+      </label>
+      <label>Hmotnost (g)
+        <input type="number" name="hmotnost_g" value="{{ bird['hmotnost_g'] if bird else '' }}" min="0">
+      </label>
+      <label>Status ohrožení
+        <input type="text" name="status_ohrozeni" value="{{ bird['status_ohrozeni'] if bird else '' }}">
+      </label>
+      <label>Typ potravy
+        <input type="text" name="typ_potravy" value="{{ bird['typ_potravy'] if bird else '' }}">
+      </label>
+      <label>Migrace
+        <input type="checkbox" name="migrace" value="1" {% if bird and bird['migrace'] %}checked{% endif %}>
+        <span class="checkbox-label">Tažný druh</span>
+      </label>
+      <label>Výskyt kontinent
+        <input type="text" name="vyskyt_kontinent" value="{{ bird['vyskyt_kontinent'] if bird else '' }}">
+      </label>
+      <label>Snůška (ks)
+        <input type="number" step="0.1" name="snuska_ks" value="{{ bird['snuska_ks'] if bird else '' }}" min="0">
+      </label>
+      <div class="form-actions">
+        <button type="submit">Uložit</button>
+        <a class="button secondary" href="{{ url_for('bird_list') }}">Zrušit</a>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

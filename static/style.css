@@ -7,6 +7,116 @@ body {
     color: #1f3d2f;
 }
 
+.form-card,
+.login-container,
+.form-page {
+    background: #ffffff;
+    border: 1px solid rgba(45, 106, 79, 0.12);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(15, 55, 30, 0.08);
+    padding: 28px;
+    margin: 24px auto;
+}
+
+.alert {
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    font-size: 0.97rem;
+}
+
+.alert-error {
+    background: #ffe4e6;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.alert-success {
+    background: #e6ffed;
+    color: #155e31;
+    border: 1px solid #86efac;
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    text-decoration: none;
+    color: #ffffff;
+    background: #1f3d2f;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.button:hover {
+    background: #274f39;
+}
+
+.button.secondary {
+    background: #f2faf4;
+    color: #1f3d2f;
+    border: 1px solid rgba(31, 61, 47, 0.16);
+}
+
+.button.danger {
+    background: #c0392b;
+}
+
+.button.small {
+    padding: 7px 14px;
+    font-size: 0.9rem;
+}
+
+.bird-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 14px;
+    margin: 24px 0;
+}
+
+.inline-form {
+    display: inline-block;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+    font-weight: 700;
+    color: #2f5f44;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"] {
+    border: 1px solid #d7e4db;
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: #f8fbf7;
+    color: #1f3d2f;
+    font-size: 1rem;
+}
+
+.checkbox-label {
+    display: inline-block;
+    margin-left: 8px;
+    font-weight: 400;
+    color: #3f5f44;
+}
+
 /* Header styles */
 header {
     background: linear-gradient(to right, #1a4630, #2f7b55);
@@ -23,6 +133,9 @@ header p {
     margin: 8px auto 0;
     max-width: 760px;
     color: rgba(255, 255, 255, 0.88);
+}
+header .header-actions {
+    margin-top: 16px;
 }
 
 .layout {
