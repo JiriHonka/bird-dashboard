@@ -1,133 +1,111 @@
-#Plán implementace správy ptačího datasetu.
-Přehled
+Fáze 1: Veřejný dashboard (Read-only)
+Funkcionalita
+Zobrazení seznamu ptáků bez možnosti úprav
+Workflow
+Uživatel otevře aplikaci
+Vidí dashboard
+Uživatelské rozhraní
 
-Cílem je vytvořit webovou aplikaci, která umožní přihlášeným uživatelům spravovat záznamy o ptácích (CRUD operace – Create, Read, Update, Delete). Nepřihlášení uživatelé nebudou mít přístup ke správě databáze.
+Stránka: /dashboard
 
-#Fáze 1: Autentizace uživatele (Login systém)
+Tabulka obsahuje:
+
+Název
+Latinský název
+Popis
+
+Prvky:
+
+tlačítko „Přihlásit se“
+
+ Bez:
+Upravit
+Smazat
+Přidat
+
+Fáze 2: Autentizace uživatele (Login systém)
 Funkcionalita
 Přihlášení uživatele
-Ochrana rout (přístup pouze pro přihlášené)
-Workflow
-Uživatel otevře aplikaci.
-Je přesměrován na přihlašovací stránku.
-Zadá uživatelské jméno a heslo.
-Po úspěšném přihlášení je přesměrován na hlavní dashboard.
-Pokud přihlášení selže, zobrazí se chybová hláška.
-Uživatelské rozhraní
-Stránka: /login
-Formulář obsahuje:
-input: uživatelské jméno
-input: heslo
-tlačítko: „Přihlásit se“
-Chybová zpráva pod formulářem
-Technické poznámky
-Použití session nebo JWT tokenů
-Middleware pro ochranu rout
+Klikne na „Přihlásit se“
+Je přesměrován na /login
+Zadá přihlašovací údaje
+Po úspěšném přihlášení je přesměrován na /birds
+Při chybě se zobrazí hláška
 
-#Fáze 2: Zobrazení seznamu ptáků (Read)
+Fáze 3: CRUD rozhraní (správa ptáků)
 Funkcionalita
-Výpis všech záznamů v databázi
+Plná správa dat (Create, Update, Delete)
 Workflow
-Uživatel se přihlásí.
-Je přesměrován na stránku se seznamem ptáků.
-Vidí tabulku se záznamy.
+Uživatel je přihlášen
+Je na /birds
+Vidí tabulku s akcemi
+Může upravovat data
 Uživatelské rozhraní
+
 Stránka: /birds
-Tabulka obsahuje sloupce:
+
+Tabulka obsahuje:
+
 Název
 Latinský název
 Popis
 Akce (Upravit, Smazat)
-Tlačítko: „Přidat nového ptáka“
 
-#Fáze 3: Přidání nového záznamu (Create)
+Tlačítko:
+
+„Přidat nového ptáka“
+
+Fáze 4: Přidání nového záznamu (Create)
 Funkcionalita
-Vytvoření nového záznamu o ptákovi
+Přidání záznamu (pouze přihlášený)
 Workflow
-Uživatel klikne na „Přidat nového ptáka“.
-Je přesměrován na formulář.
-Vyplní údaje.
-Odešle formulář.
-Po úspěchu je přesměrován zpět na seznam.
+Klik na „Přidat nového ptáka“
+Formulář
+Odeslání
+Návrat na /birds
 Uživatelské rozhraní
-Stránka: /birds/new
-Formulář obsahuje:
+
+Stránka: /birds_form
+
+Formulář:
+
 Název
 Latinský název
 Popis
-(volitelně) obrázek
 Tlačítka:
-„Uložit“
-„Zrušit“
 
-#Fáze 4: Úprava záznamu (Update)
+Uložit
+Zrušit
+
+Fáze 5: Úprava záznamu (Update)
 Funkcionalita
-Editace existujícího záznamu
+Editace záznamu
 Workflow
-Uživatel klikne na „Upravit“ u konkrétního záznamu.
-Otevře se formulář s předvyplněnými daty.
-Uživatel provede změny.
-Uloží změny.
-Vrátí se zpět na seznam.
+Klik na „Upravit“
+Úprava
+Uložení
+Návrat na /birds
+předvyplněný formulář
+
+Fáze 6: Smazání záznamu (Delete)
+Funkcionalita
+Smazání záznamu
+Workflow
+Klik na „Smazat“
+Potvrzení
+Smazání
+Aktualizace seznamu
 Uživatelské rozhraní
-Stránka: /birds/:id/edit
-Formulář stejný jako při vytváření
-Předvyplněná data
+tlačítko „Smazat“
+potvrzovací dialog
 
-#Fáze 5: Smazání záznamu (Delete)
+Fáze 7: Ochrana aplikace (Authorization)
 Funkcionalita
-Odstranění záznamu z databáze
+Oddělení veřejné a neveřejné části
+Pravidla
+/dashboard veřejné
+/birds pouze přihlášený
 Workflow
-Uživatel klikne na „Smazat“.
-Zobrazí se potvrzovací dialog.
-Po potvrzení je záznam odstraněn.
-Seznam se aktualizuje.
-Uživatelské rozhraní
-Tlačítko „Smazat“ v tabulce
-Modal/dialog s potvrzením:
-„Opravdu chcete smazat tento záznam?“
-Tlačítka: „Ano“ / „Ne“
-
-#Fáze 6: Ochrana aplikace (Authorization)
-Funkcionalita
-Zajištění, že CRUD operace jsou dostupné pouze přihlášeným
-Workflow
-Nepřihlášený uživatel se pokusí vstoupit na /birds.
-Je automaticky přesměrován na /login.
-Přihlášený uživatel má plný přístup.
-Technické řešení
-Middleware kontrolující autentizaci
-Token uložený v cookies/localStorage
-
-#Fáze 7: Struktura databáze
-Tabulka: birds
-id (PK)
-name (string)
-latin_name (string)
-description (text)
-image_url (string, volitelné)
-created_at
-updated_at
-
-#Fáze 8: API návrh
-Endpointy
-POST /api/login
-GET /api/birds
-POST /api/birds
-PUT /api/birds/:id
-DELETE /api/birds/:id
-
-#Fáze 9: Verzování a commit
-Postup
-Vytvořit soubor: PLAN.md
-Vložit tento plán
-Commit zpráva:
-docs: přidán plán implementace správy ptačího datasetu
-Shrnutí
-
-Aplikace bude mít jasný tok:
-
-Login stránka
-Dashboard se seznamem ptáků
-Možnost přidávat, upravovat a mazat záznamy
-Vše dostupné pouze po přihlášení
+Nepřihlášený uživatel jde na /dashboard
+ přesměrování na /login
+Přihlášený uživatel na /birds
