@@ -147,6 +147,7 @@
                 <th>Migrace</th>
                 <th>Kontinent</th>
                 <th>Snůška (ks)</th>
+                <th>Akce</th>
             </tr>
         </thead>
         <tbody>
@@ -172,6 +173,12 @@
                 <td>{{ "Ano" if p['migrace'] else "Ne" }}</td>
                 <td>{{ p['vyskyt_kontinent'] }}</td>
                 <td>{{ p['snuska_ks'] }}</td>
+                <td>
+                    <a class="button small" href="{{ url_for('edit_bird', bird_id=p['id']) }}">Upravit</a>
+                    <form action="{{ url_for('delete_bird', bird_id=p['id']) }}" method="post" class="inline-form" onsubmit="return confirm('Opravdu chcete smazat tento záznam?');">
+                        <button type="submit" class="button danger small">Smazat</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

@@ -65,7 +65,13 @@ def parse_float(value, default=None):
     except (TypeError, ValueError): return default
 
 @app.route("/")
+def index():
+    if session.get("user_id"):
+        return redirect(url_for("dashboard"))
+    return redirect(url_for("login"))
+
 @app.route("/dashboard")
+@login_required
 def dashboard():
     conn = get_db()
     cursor = conn.cursor()
@@ -146,7 +152,7 @@ def dashboard():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if session.get("user_id"): return redirect(url_for("bird_list"))
+    if session.get("user_id"): return redirect(url_for("dashboard"))
     error = None
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -155,7 +161,7 @@ def login():
             user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
             if user and check_password_hash(user["password_hash"], password):
                 session.update({"user_id": user["id"], "username": user["username"]})
-                return redirect(url_for("bird_list"))
+                return redirect(url_for("dashboard"))
         error = "Nesprávné údaje."
     return render_template("login.html", error=error)
 
