@@ -6,7 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = "opravdu-bezpecny-klic"
-DATABASE = "ptaci.db"
+DATABASE = os.path.join(os.path.dirname(__file__), "ptaci.db")
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
